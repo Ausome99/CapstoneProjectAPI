@@ -17,7 +17,38 @@ CORS(app)
 bcrypt = Bcrypt(app)
 
 
-# Classes go here
+class User(db.Model):
+    id = db.Column(db.Integer, primary_keys=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(), nullable=False)
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "username", "password")
+
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
+@app.route("/user/create", methods=["POST"])
+def create_user():
+    if request.content_type != "application/json":
+        return jsonify("Error: Data must be sent as JSON")
+
+    post_data = request.get_json()
+    username = post_data.get("username")
+    password = post_data.get("password")
+
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf8")
+
+    record = User(username, hashed_password)
+    db.session.add(record)
+    db.session.commit()
+
+    return jsonify("User Created Successfully!")
 
 # Endpoints go here
 
