@@ -17,69 +17,69 @@ CORS(app)
 bcrypt = Bcrypt(app)
 
 
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(20), nullable=False, unique=True)
-#     password = db.Column(db.String(), nullable=False)
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(), nullable=False)
 
-#     def __init__(self, username, password):
-#         self.username = username
-#         self.password = password
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
-# class UserSchema(ma.Schema):
-#     class Meta:
-#         fields = ("id", "username", "password")
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "username", "password")
 
-# user_schema = UserSchema()
-# users_schema = UserSchema(many=True)
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
 
-# @app.route("/user/create", methods=["POST"])
-# def create_user():
-#     if request.content_type != "application/json":
-#         return jsonify("Error: Data must be sent as JSON")
+@app.route("/user/create", methods=["POST"])
+def create_user():
+    if request.content_type != "application/json":
+        return jsonify("Error: Data must be sent as JSON")
 
-#     post_data = request.get_json()
-#     username = post_data.get("username")
-#     password = post_data.get("password")
+    post_data = request.get_json()
+    username = post_data.get("username")
+    password = post_data.get("password")
 
-#     hashed_password = bcrypt.generate_password_hash(password).decode("utf8")
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf8")
 
-#     record = User(username, hashed_password)
-#     db.session.add(record)
-#     db.session.commit()
+    record = User(username, hashed_password)
+    db.session.add(record)
+    db.session.commit()
 
-#     return jsonify("User Created Successfully!")
+    return jsonify("User Created Successfully!")
 
-# @app.route("/user/get", methods=["GET"])
-# def get_all_users():
-#     all_users = db.session.query(User).all()
-#     return jsonify(users_schema.dump(all_users))
+@app.route("/user/get", methods=["GET"])
+def get_all_users():
+    all_users = db.session.query(User).all()
+    return jsonify(users_schema.dump(all_users))
 
-# @app.route("/user/get/<id>", methods=["GET"])
-# def get_user_by_id(id):
-#     user = db.session.query(User).filter(User.id == id).first()
-#     return jsonify(user_schema.dump(user))
+@app.route("/user/get/<id>", methods=["GET"])
+def get_user_by_id(id):
+    user = db.session.query(User).filter(User.id == id).first()
+    return jsonify(user_schema.dump(user))
 
-# @app.route("/user/verification", methods=["POST"])
-# def verify_user():
-#     if request.content_type != "application/json":
-#         return jsonify("Error: Data must be sent as JSON")
+@app.route("/user/verification", methods=["POST"])
+def verify_user():
+    if request.content_type != "application/json":
+        return jsonify("Error: Data must be sent as JSON")
     
-#     post_data = request.get_json()
-#     username = post_data.get("username")
-#     password = post_data.get("password")
+    post_data = request.get_json()
+    username = post_data.get("username")
+    password = post_data.get("password")
 
-#     stored_password = db.session.query(User.password).filter(User.username == username).first()
+    stored_password = db.session.query(User.password).filter(User.username == username).first()
 
-#     if stored_password is None:
-#         return jsonify("User NOT Verified")
+    if stored_password is None:
+        return jsonify("User NOT Verified")
 
-#     valid_password_check = bcrypt.check_password_hash(stored_password[0], password)
+    valid_password_check = bcrypt.check_password_hash(stored_password[0], password)
 
-#     if valid_password_check == False:
-#         return jsonify("User NOT Verified")
+    if valid_password_check == True:
+        return jsonify("User Verified")
 
-#     return jsonify("User Verified")
+    return jsonify("User NOT Verified")
 
 class Page(db.Model):
     __tablename__ = 'page'
