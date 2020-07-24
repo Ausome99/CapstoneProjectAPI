@@ -116,6 +116,25 @@ class ChoiceSchema(ma.Schema):
 choice_schema = ChoiceSchema()
 choices_schema = ChoiceSchema(many=True)
 
+class Save(db.Model):
+    __tablename__ = 'save'
+    id = db.Column(db.Integer, primary_key=True)
+    page_name = db.Column(db.String(), nullable=False)
+    username = db.Column(db.String(), nullable=False, unique=True)
+
+    def __init__(self, page_name, username):
+        self.page_name = page_name
+        self.username = username
+    
+class SaveSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "page_name", "username")
+
+save_schema = SaveSchema()
+saves_schema = SaveSchema(many=True)
+
+# Page
+
 @app.route("/page/add", methods=["POST"])
 def add_page():
     if request.content_type != "application/json":
@@ -144,6 +163,8 @@ def get_page_info(page_name):
     page_dump['choices'] = choices_schema.dump(choices)
     return jsonify(page_dump)
 
+# Choices
+
 @app.route("/choice/add", methods=["POST"])
 def add_choice():
     if request.content_type != "application/json":
@@ -165,39 +186,37 @@ def get_all_choices():
     all_choices = db.session.query(Choice).all()
     return jsonify(choices_schema.dump(all_choices))
 
-# @app.route("/character/get/<id>", methods=["GET"])
-# def get_character_by_id(id):
-#     character = db.session.query(Character).filter(Character.id == id).first()
-#     return jsonify(character_schema.dump(character))
+# Save
 
-# @app.route("/character/delete/<id>", methods=["DELETE"])
-# def delete_character_by_id(id):
-#     character = db.session.query(Character).filter(Character.id == id).first()
-#     db.session.delete(character)
-#     db.session.commit()
-#     return jsonify("Character Deleted")
+@app.route("/save", methods=["POST"])
+def add_save():
+    if request.content_type != "application/json":
+        return jsonify("Error: Data must be sent as JSON")
+    
+    post_data = request.get_json()
+    page_name = post_data.get("page_name")
+    username = post_data.get("username")
 
-# @app.route("/character/update/<id>", methods=["PUT"])
-# def update_character_by_id(id):
-#     if request.content_type != "application/json":
-#         return jsonify("Error: Data must be sent as JSON")
+    save_game = db.session.query(Save).filter(Save.username == username).first()
+    if save_game == None:
+        record = Save(page_name, username)
+        db.session.add(record) 
+    else:
+        save_game.page_name = page_name  
 
-#     put_data = request.get_json()
-#     name = put_data.get("name")
-#     character_class = put_data.get("character_class")
-#     hitpoints = put_data.get("hitpoints")
+    db.session.commit()
 
-#     character = db.session.query(Character).filter(Character.id == id).first()
-#     if name is not None:
-#         character.name = name
-#     if character_class is not None:
-#         character.character_class = character_class
-#     if hitpoints is not None:
-#         character.hitpoints = hitpoints
+    return jsonify("Game Saved!")
 
-#     db.session.commit()
+@app.route("/load/<username>", methods=["GET"])
+def load_save_game(username):
+    load = db.session.query(Save).filter(Save.username == username).first()
+    return jsonify(save_schema.dump(load))
 
-#     return jsonify("Character Updated")
+@app.route("/load", methods=["GET"])
+def load_all_save_games():
+    load = db.session.query(Save).all()
+    return jsonify(saves_schema.dump(load))
 
 if __name__ == "__main__":
     app.run(debug=True)
