@@ -7,7 +7,7 @@ from flask_bcrypt import Bcrypt
 import io
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://agnayctohkpfkb:8b5c2e76d508ed7600f60feb9e7a40014301f7cc07db3d59acb3da92be318dca@ec2-34-192-173-173.compute-1.amazonaws.com:5432/db62c3nqb7dreq"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://clzwznpjvkrjxm:518b6d488de81bb4ce6cb9b37e6be6fa4810623056846951f3db8430c1046a69@ec2-50-19-26-235.compute-1.amazonaws.com:5432/dfftl76kkfiaar"
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
