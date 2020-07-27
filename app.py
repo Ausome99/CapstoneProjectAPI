@@ -206,7 +206,7 @@ def add_save():
 
     db.session.commit()
 
-    return jsonify("Game Saved!")
+    return jsonify( { "result":"success", "message":"Game Saved!" } )
 
 @app.route("/load/<username>", methods=["GET"])
 def load_save_game(username):
